@@ -58,6 +58,13 @@ for _ in range(50):
 print("Energy:", net.energy(x, target))
 ```
 
+To enable GPU acceleration, instantiate the network with ``backend="torch"``. If a
+CUDA-capable device is available, computations will run on the GPU and can be
+parallelized across multiple GPUs using ``multi_gpu=True``:
+
+```python
+net = EnergyNetwork([2, 4, 1], backend="torch", multi_gpu=True)
+
 For larger scale experiments you can train the network on the
 ``sklearn`` digits dataset using the provided ``EnergyTrainer`` utility:
 
