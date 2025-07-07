@@ -58,6 +58,21 @@ for _ in range(50):
 print("Energy:", net.energy(x, target))
 ```
 
+For larger scale experiments you can train the network on the
+``sklearn`` digits dataset using the provided ``EnergyTrainer`` utility:
+
+```python
+from bio_snn.training import EnergyTrainer, TrainingConfig
+
+cfg = TrainingConfig(sizes=[64, 32, 10], lr=0.05, epochs=5)
+trainer = EnergyTrainer(cfg)
+trainer.train()
+```
+
+This will load the dataset, run several training epochs while logging loss
+values, save checkpoints in ``./checkpoints`` and produce a ``training_loss.png``
+plot for quick visualization.
+
 ## Command Line Interface
 
 A simple CLI is provided to quickly run a simulation without writing any code.
