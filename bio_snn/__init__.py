@@ -3,11 +3,13 @@
 from .neuron import SpikingNeuron
 from .network import Network
 from .predictive_coding import PredictiveCodingNetwork
+from .energy_based import EnergyNetwork
 from .interface import run_simulation
 
 __all__ = [
     "SpikingNeuron",
     "Network",
     "PredictiveCodingNetwork",
+    "EnergyNetwork",
     "run_simulation",
 ]

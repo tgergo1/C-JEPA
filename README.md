@@ -8,6 +8,7 @@ implements several biologically motivated mechanisms:
 - **Spike-Timing-Dependent Plasticity (STDP)** learning rule.
 - A small **predictive coding** network that attempts to minimize local
   prediction errors between layers.
+- A simple **energy-based** network for gradient descent experiments.
 
 The implementation is intentionally lightweight and serves as a starting point
 for experimenting with more elaborate models that incorporate dendritic
@@ -25,7 +26,7 @@ Install dependencies:
 pip install numpy matplotlib
 ```
 
-Run a short simulation:
+Run a short simulation with the predictive coding network:
 
 ```python
 from bio_snn.predictive_coding import PredictiveCodingNetwork
@@ -40,17 +41,33 @@ print("Output:", y)
 ```
 
 This will create a tiny network with one hidden layer and run it for a few
-steps. Extending the model with more detailed neuron dynamics and testing it on
-continual learning tasks or robustness benchmarks are natural next steps.
+steps.
+
+An additional ``EnergyNetwork`` class demonstrates energy-based training with
+backpropagation. Example:
+
+```python
+from bio_snn.energy_based import EnergyNetwork
+import numpy as np
+
+net = EnergyNetwork([2, 4, 1])
+x = np.array([1.0, -1.0])
+target = np.array([0.5])
+for _ in range(50):
+    net.train_step(x, target)
+print("Energy:", net.energy(x, target))
+```
 
 ## Command Line Interface
 
-A simple CLI is provided to quickly run a simulation without writing any code. Example usage:
+A simple CLI is provided to quickly run a simulation without writing any code.
+Example usage:
 
 ```bash
 python -m bio_snn.interface --sizes 2,3,1 --input 1,0 --steps 100 --seed 0
 ```
 
-This will construct a small network with the given layer sizes, feed the input vector for 100 steps and print the final output.
-Providing a ``--seed`` ensures reproducible results, while ``--modulation`` can
-be used to adjust the strength of plasticity online.
+This will construct a small network with the given layer sizes, feed the input
+vector for 100 steps and print the final output.  Providing a ``--seed`` ensures
+reproducible results, while ``--modulation`` can be used to adjust the strength
+of plasticity online.
