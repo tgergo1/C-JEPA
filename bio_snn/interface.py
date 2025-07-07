@@ -3,8 +3,10 @@ import numpy as np
 from .predictive_coding import PredictiveCodingNetwork
 
 
-def run_simulation(sizes, input_vec, steps, modulation=1.0):
+def run_simulation(sizes, input_vec, steps, modulation=1.0, seed=None):
     """Run a predictive coding network for a number of steps."""
+    if seed is not None:
+        np.random.seed(seed)
     net = PredictiveCodingNetwork(sizes)
     x = np.array(input_vec, dtype=float)
     for _ in range(steps):
@@ -41,11 +43,23 @@ def main(args=None):
         default=1.0,
         help="Neuromodulation factor",
     )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=None,
+        help="Random seed for reproducibility",
+    )
     parsed = parser.parse_args(args)
 
     sizes = [int(s) for s in parsed.sizes.split(",")]
     input_vec = [float(v) for v in parsed.input.split(",")]
-    run_simulation(sizes, input_vec, parsed.steps, modulation=parsed.modulation)
+    run_simulation(
+        sizes,
+        input_vec,
+        parsed.steps,
+        modulation=parsed.modulation,
+        seed=parsed.seed,
+    )
 
 
 if __name__ == "__main__":

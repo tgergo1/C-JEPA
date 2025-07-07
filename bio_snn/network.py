@@ -1,17 +1,32 @@
+"""Simple feedforward SNN architecture."""
+
+from dataclasses import dataclass, field
 import numpy as np
 from .neuron import SpikingNeuron
 from .plasticity import STDP, SynapticScaling
 
+@dataclass
 class Layer:
-    def __init__(self, n_in, n_neurons):
-        self.weights = np.random.randn(n_neurons, n_in) * 0.1
-        self.neurons = [SpikingNeuron() for _ in range(n_neurons)]
-        self.stdp = STDP()
-        self.scaling = SynapticScaling()
-        self.pre_traces = np.zeros((n_neurons, n_in))
-        self.post_traces = np.zeros(n_neurons)
-        self.avg_rates = np.zeros(n_neurons)
-        self.tau_rate = 100.0
+    """Single SNN layer with local plasticity."""
+
+    n_in: int
+    n_neurons: int
+    stdp: STDP = field(default_factory=STDP)
+    scaling: SynapticScaling = field(default_factory=SynapticScaling)
+    tau_rate: float = 100.0
+
+    weights: np.ndarray = field(init=False)
+    neurons: list[SpikingNeuron] = field(init=False)
+    pre_traces: np.ndarray = field(init=False)
+    post_traces: np.ndarray = field(init=False)
+    avg_rates: np.ndarray = field(init=False)
+
+    def __post_init__(self) -> None:
+        self.weights = np.random.randn(self.n_neurons, self.n_in) * 0.1
+        self.neurons = [SpikingNeuron() for _ in range(self.n_neurons)]
+        self.pre_traces = np.zeros((self.n_neurons, self.n_in))
+        self.post_traces = np.zeros(self.n_neurons)
+        self.avg_rates = np.zeros(self.n_neurons)
 
     def forward(self, x, modulation=1.0):
         outputs = []
@@ -40,6 +55,14 @@ class Layer:
 
         return np.array(outputs)
 
+    def reset_state(self) -> None:
+        """Reset neuron states and traces for a fresh simulation."""
+        for neuron in self.neurons:
+            neuron.reset()
+        self.pre_traces.fill(0)
+        self.post_traces.fill(0)
+        self.avg_rates.fill(0)
+
 class Network:
     """Simple feedforward SNN with STDP and predictive coding."""
 
@@ -52,3 +75,8 @@ class Network:
         for layer in self.layers:
             x = layer.forward(x, modulation=modulation)
         return x
+
+    def reset_state(self) -> None:
+        """Reset all layers for a new episode."""
+        for layer in self.layers:
+            layer.reset_state()
