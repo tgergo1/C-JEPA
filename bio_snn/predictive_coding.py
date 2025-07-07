@@ -4,15 +4,30 @@ from .network import Network
 class PredictiveCodingNetwork(Network):
     """Hierarchical network minimizing local prediction errors."""
 
-    def __init__(self, sizes):
+    def __init__(self, sizes, lr=0.01):
         super().__init__(sizes)
         self.pred_weights = [np.zeros((sizes[i], sizes[i+1])) for i in range(len(sizes)-1)]
+        self.lr = lr
 
-    def forward(self, x):
+    def forward(self, x, modulation=1.0):
+        """Propagate an input using local prediction errors and neuromodulation."""
         activations = [x]
         for i, layer in enumerate(self.layers):
-            pred = self.pred_weights[i].T @ activations[-1]
-            err = activations[-1] - pred
-            out = layer.forward(err)
-            activations.append(out)
+            prev_act = activations[-1]
+
+            # bottom-up activation for the next layer
+            out = layer.forward(prev_act, modulation=modulation)
+
+            # predict the next layer's activity from the current layer
+            pred = self.pred_weights[i].T @ prev_act
+
+            # prediction error for the next layer
+            err = out - pred
+
+            # simple local learning rule for prediction weights
+            self.pred_weights[i] += self.lr * np.outer(prev_act, err)
+
+            # propagate the error upward
+            activations.append(err)
+
         return activations[-1]
