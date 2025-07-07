@@ -39,3 +39,13 @@ print("Output:", y)
 This will create a tiny network with one hidden layer and run it for a few
 steps. Extending the model with more detailed neuron dynamics and testing it on
 continual learning tasks or robustness benchmarks are natural next steps.
+
+## Command Line Interface
+
+A simple CLI is provided to quickly run a simulation without writing any code. Example usage:
+
+```bash
+python -m bio_snn.interface --sizes 2,3,1 --input 1,0 --steps 100
+```
+
+This will construct a small network with the given layer sizes, feed the input vector for 100 steps and print the final output.
