@@ -23,7 +23,7 @@ functions making the code easier to use for controlled experiments.
 Install dependencies:
 
 ```bash
-pip install numpy matplotlib
+pip install numpy torch matplotlib scikit-learn
 ```
 
 Run a short simulation with the predictive coding network:
@@ -57,6 +57,21 @@ for _ in range(50):
     net.train_step(x, target)
 print("Energy:", net.energy(x, target))
 ```
+
+For larger scale experiments you can train the network on the
+``sklearn`` digits dataset using the provided ``EnergyTrainer`` utility:
+
+```python
+from bio_snn.training import EnergyTrainer, TrainingConfig
+
+cfg = TrainingConfig(sizes=[64, 32, 10], lr=0.05, epochs=5)
+trainer = EnergyTrainer(cfg)
+trainer.train()
+```
+
+This will load the dataset, run several training epochs while logging loss
+values, save checkpoints in ``./checkpoints`` and produce a ``training_loss.png``
+plot for quick visualization.
 
 ### PyTorch implementation
 

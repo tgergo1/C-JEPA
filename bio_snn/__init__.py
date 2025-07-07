@@ -9,6 +9,9 @@ from .modular_network import ModularEnergyNetwork
 from .layers import DenseLayer, ConvLayer, FlattenLayer, RecurrentLayer
 from .energy_predictive import EnergyPredictiveNetwork
 from .interface import run_simulation
+from .datasets import load_digits_dataset
+from .training import EnergyTrainer, TrainingConfig
+from .torch_energy import TorchEnergyNetwork
 
 __all__ = [
     "SpikingNeuron",
@@ -23,4 +26,7 @@ __all__ = [
     "RecurrentLayer",
     "EnergyPredictiveNetwork",
     "run_simulation",
+    "load_digits_dataset",
+    "EnergyTrainer",
+    "TrainingConfig",
 ]
