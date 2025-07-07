@@ -31,3 +31,9 @@ class PredictiveCodingNetwork(Network):
             activations.append(err)
 
         return activations[-1]
+
+    def reset_state(self) -> None:
+        """Reset network and prediction weights."""
+        super().reset_state()
+        for w in self.pred_weights:
+            w.fill(0)

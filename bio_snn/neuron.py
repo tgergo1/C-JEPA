@@ -1,16 +1,28 @@
+"""Spiking neuron models used by the network."""
+
+from dataclasses import dataclass, field
 import numpy as np
 
+
+@dataclass
 class SpikingNeuron:
     """A simple spiking neuron with adaptive threshold and two compartments."""
 
-    def __init__(self, n_dendrites=2, tau_mem=10.0, tau_thresh=20.0, v_reset=0.0, v_thresh=1.0):
-        self.n_dendrites = n_dendrites
-        self.v = v_reset
-        self.threshold = v_thresh
-        self.v_reset = v_reset
-        self.tau_mem = tau_mem
-        self.tau_thresh = tau_thresh
-        self.last_spike = -np.inf
+    n_dendrites: int = 2
+    tau_mem: float = 10.0
+    tau_thresh: float = 20.0
+    v_reset: float = 0.0
+    v_thresh: float = 1.0
+
+    v: float = field(init=False)
+    threshold: float = field(init=False)
+    last_spike: float = field(default=-np.inf, init=False)
+    baseline_thresh: float = field(init=False)
+
+    def __post_init__(self) -> None:
+        self.v = self.v_reset
+        self.threshold = self.v_thresh
+        self.baseline_thresh = self.v_thresh
 
     def forward(self, inputs, dt=1.0):
         """Integrate inputs and return spike (0/1)."""
@@ -26,3 +38,9 @@ class SpikingNeuron:
         if self.last_spike != -np.inf:
             self.last_spike += dt
         return 0
+
+    def reset(self) -> None:
+        """Reset membrane potential and adaptive threshold."""
+        self.v = self.v_reset
+        self.threshold = self.baseline_thresh
+        self.last_spike = -np.inf

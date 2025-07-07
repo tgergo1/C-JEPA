@@ -14,6 +14,9 @@ for experimenting with more elaborate models that incorporate dendritic
 computation, neuromodulation and hierarchical organization as described in the
 project proposal.
 
+Recent refactoring introduced reproducible initialization and state reset
+functions making the code easier to use for controlled experiments.
+
 ## Basic Usage
 
 Install dependencies:
@@ -45,7 +48,9 @@ continual learning tasks or robustness benchmarks are natural next steps.
 A simple CLI is provided to quickly run a simulation without writing any code. Example usage:
 
 ```bash
-python -m bio_snn.interface --sizes 2,3,1 --input 1,0 --steps 100
+python -m bio_snn.interface --sizes 2,3,1 --input 1,0 --steps 100 --seed 0
 ```
 
 This will construct a small network with the given layer sizes, feed the input vector for 100 steps and print the final output.
+Providing a ``--seed`` ensures reproducible results, while ``--modulation`` can
+be used to adjust the strength of plasticity online.
