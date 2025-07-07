@@ -58,6 +58,14 @@ for _ in range(50):
 print("Energy:", net.energy(x, target))
 ```
 
+To enable GPU acceleration, instantiate the network with ``backend="torch"``. If a
+CUDA-capable device is available, computations will run on the GPU and can be
+parallelized across multiple GPUs using ``multi_gpu=True``:
+
+```python
+net = EnergyNetwork([2, 4, 1], backend="torch", multi_gpu=True)
+```
+
 ## Command Line Interface
 
 A simple CLI is provided to quickly run a simulation without writing any code.
