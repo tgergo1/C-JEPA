@@ -58,6 +58,24 @@ for _ in range(50):
 print("Energy:", net.energy(x, target))
 ```
 
+### PyTorch implementation
+
+For experiments requiring automatic differentiation or more advanced optimizers,
+the repository also provides ``TorchEnergyNetwork`` which mirrors the numpy
+version but is implemented with PyTorch. Using it is nearly identical:
+
+```python
+from bio_snn.torch_energy import TorchEnergyNetwork
+import torch
+
+net = TorchEnergyNetwork([2, 4, 1])
+x = torch.tensor([1.0, -1.0])
+target = torch.tensor([0.5])
+for _ in range(50):
+    net.train_step(x, target)
+print("Energy:", net.energy(x, target).item())
+```
+
 ## Command Line Interface
 
 A simple CLI is provided to quickly run a simulation without writing any code.
