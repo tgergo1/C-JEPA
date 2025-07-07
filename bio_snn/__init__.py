@@ -3,5 +3,11 @@
 from .neuron import SpikingNeuron
 from .network import Network
 from .predictive_coding import PredictiveCodingNetwork
+from .interface import run_simulation
 
-__all__ = ["SpikingNeuron", "Network", "PredictiveCodingNetwork"]
+__all__ = [
+    "SpikingNeuron",
+    "Network",
+    "PredictiveCodingNetwork",
+    "run_simulation",
+]
