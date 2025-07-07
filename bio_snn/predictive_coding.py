@@ -1,11 +1,12 @@
 import numpy as np
 from .network import Network
+from .neuron import SpikingNeuron
 
 class PredictiveCodingNetwork(Network):
     """Hierarchical network minimizing local prediction errors."""
 
-    def __init__(self, sizes, lr=0.01):
-        super().__init__(sizes)
+    def __init__(self, sizes, lr=0.01, neuron_cls=SpikingNeuron):
+        super().__init__(sizes, neuron_cls=neuron_cls)
         self.pred_weights = [np.zeros((sizes[i], sizes[i+1])) for i in range(len(sizes)-1)]
         self.lr = lr
 

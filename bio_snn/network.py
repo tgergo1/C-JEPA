@@ -1,6 +1,7 @@
 """Simple feedforward SNN architecture."""
 
 from dataclasses import dataclass, field
+from typing import Type
 import numpy as np
 from .neuron import SpikingNeuron
 from .plasticity import STDP, SynapticScaling
@@ -11,6 +12,7 @@ class Layer:
 
     n_in: int
     n_neurons: int
+    neuron_cls: Type[SpikingNeuron] = SpikingNeuron
     stdp: STDP = field(default_factory=STDP)
     scaling: SynapticScaling = field(default_factory=SynapticScaling)
     tau_rate: float = 100.0
@@ -23,7 +25,7 @@ class Layer:
 
     def __post_init__(self) -> None:
         self.weights = np.random.randn(self.n_neurons, self.n_in) * 0.1
-        self.neurons = [SpikingNeuron() for _ in range(self.n_neurons)]
+        self.neurons = [self.neuron_cls() for _ in range(self.n_neurons)]
         self.pre_traces = np.zeros((self.n_neurons, self.n_in))
         self.post_traces = np.zeros(self.n_neurons)
         self.avg_rates = np.zeros(self.n_neurons)
@@ -66,10 +68,10 @@ class Layer:
 class Network:
     """Simple feedforward SNN with STDP and predictive coding."""
 
-    def __init__(self, sizes):
+    def __init__(self, sizes, neuron_cls: Type[SpikingNeuron] = SpikingNeuron):
         self.layers = []
         for n_in, n_out in zip(sizes[:-1], sizes[1:]):
-            self.layers.append(Layer(n_in, n_out))
+            self.layers.append(Layer(n_in, n_out, neuron_cls=neuron_cls))
 
     def forward(self, x, modulation=1.0):
         for layer in self.layers:

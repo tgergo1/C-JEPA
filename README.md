@@ -58,6 +58,21 @@ for _ in range(50):
 print("Energy:", net.energy(x, target))
 ```
 
+## High-Level API
+
+A small helper module simplifies building networks and running energy-based
+training schedules:
+
+```python
+from bio_snn.api import build_snn, LearningSchedule, train_energy
+import numpy as np
+
+net = build_snn([2, 4, 1], network_type="energy")
+schedule = LearningSchedule(lr=0.05, epochs=20)
+train_energy(net, np.array([1.0, -1.0]), np.array([0.5]), schedule)
+print("Energy:", net.energy(np.array([1.0, -1.0]), np.array([0.5])))
+```
+
 ## Command Line Interface
 
 A simple CLI is provided to quickly run a simulation without writing any code.

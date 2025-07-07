@@ -3,12 +3,13 @@ import numpy as np
 class EnergyNetwork:
     """Simple energy-based network with gradient descent training."""
 
-    def __init__(self, sizes, reg=1e-4):
+    def __init__(self, sizes, reg=1e-4, energy_fn=None):
         self.weights = [
             np.random.randn(n_out, n_in) * 0.1
             for n_in, n_out in zip(sizes[:-1], sizes[1:])
         ]
         self.reg = reg
+        self.energy_fn = energy_fn
 
     def forward(self, x):
         """Forward pass with tanh activations."""
@@ -16,12 +17,17 @@ class EnergyNetwork:
             x = np.tanh(w @ x)
         return self.weights[-1] @ x
 
-    def energy(self, x, target):
-        """Compute global energy for input and target."""
-        out = self.forward(x)
+    def _default_energy(self, out, target):
         mse = 0.5 * np.sum((out - target) ** 2)
         reg_term = 0.5 * self.reg * sum(np.sum(w ** 2) for w in self.weights)
         return mse + reg_term
+
+    def energy(self, x, target):
+        """Compute global energy for input and target."""
+        out = self.forward(x)
+        if self.energy_fn is not None:
+            return self.energy_fn(out, target, self.weights, self.reg)
+        return self._default_energy(out, target)
 
     def train_step(self, x, target, lr=0.01):
         """Perform one gradient descent step to minimize energy."""
