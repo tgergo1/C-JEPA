@@ -23,7 +23,7 @@ functions making the code easier to use for controlled experiments.
 Install dependencies:
 
 ```bash
-pip install numpy matplotlib
+pip install numpy matplotlib scikit-learn
 ```
 
 Run a short simulation with the predictive coding network:
