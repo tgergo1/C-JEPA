@@ -111,3 +111,15 @@ This will construct a small network with the given layer sizes, feed the input
 vector for 100 steps and print the final output.  Providing a ``--seed`` ensures
 reproducible results, while ``--modulation`` can be used to adjust the strength
 of plasticity online.
+
+## Tutorial Notebooks
+
+Several Jupyter notebooks in the ``notebooks`` directory demonstrate how to
+train the ``EnergyNetwork`` on common tasks:
+
+- ``energy_image_reconstruction.ipynb`` shows a tiny autoencoder that
+  reconstructs 8x8 images.
+- ``energy_sequence_prediction.ipynb`` trains the network to predict the next
+  value in a numerical sequence.
+- ``energy_generative_modeling.ipynb`` illustrates how the network can learn a
+  simple one-dimensional distribution for generative modeling experiments.
