@@ -61,7 +61,8 @@ print("Energy:", net.energy(x, target))
 ## High-Level API
 
 A small helper module simplifies building networks and running energy-based
-training schedules:
+training schedules.  It also lets you swap in custom neuron classes or energy
+functions:
 
 ```python
 from bio_snn.api import build_snn, LearningSchedule, train_energy
@@ -71,6 +72,20 @@ net = build_snn([2, 4, 1], network_type="energy")
 schedule = LearningSchedule(lr=0.05, epochs=20)
 train_energy(net, np.array([1.0, -1.0]), np.array([0.5]), schedule)
 print("Energy:", net.energy(np.array([1.0, -1.0]), np.array([0.5])))
+```
+
+To experiment with a different objective you can pass custom functions:
+
+```python
+def my_energy(out, target, weights, reg):
+    return 0.5 * np.sum((out - target) ** 2) + 0.1 * sum(np.sum(w**2) for w in weights)
+
+def my_grad(out, target):
+    return out - target
+
+net = build_snn(
+    [2, 4, 1], network_type="energy", energy_fn=my_energy, grad_fn=my_grad
+)
 ```
 
 ## Command Line Interface

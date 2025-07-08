@@ -22,15 +22,30 @@ def build_snn(
     network_type: str = "predictive",
     neuron_cls: Type[SpikingNeuron] = SpikingNeuron,
     energy_fn: Optional[Callable] = None,
+    grad_fn: Optional[Callable] = None,
     reg: float = 1e-4,
 ):
-    """Create an SNN instance based on the requested type."""
+    """Create an SNN instance based on the requested type.
+
+    Parameters
+    ----------
+    sizes : sequence of int
+        Layer sizes including input and output.
+    network_type : {"predictive", "feedforward", "energy"}
+        Which network class to construct.
+    neuron_cls : type
+        Spiking neuron implementation to use for network layers.
+    energy_fn, grad_fn : callables, optional
+        Custom energy function and derivative for ``EnergyNetwork``.
+    reg : float
+        Regularization strength for ``EnergyNetwork``.
+    """
     if network_type == "predictive":
         return PredictiveCodingNetwork(sizes, neuron_cls=neuron_cls)
     if network_type == "feedforward":
         return Network(sizes, neuron_cls=neuron_cls)
     if network_type == "energy":
-        return EnergyNetwork(sizes, reg=reg, energy_fn=energy_fn)
+        return EnergyNetwork(sizes, reg=reg, energy_fn=energy_fn, grad_fn=grad_fn)
     raise ValueError(f"Unknown network_type: {network_type}")
 
 
@@ -40,6 +55,6 @@ def train_energy(
     target: np.ndarray,
     schedule: LearningSchedule,
 ):
-    """Train an EnergyNetwork according to the schedule."""
+    """Train an ``EnergyNetwork`` according to ``schedule``."""
     for _ in range(schedule.epochs):
         net.train_step(x, target, lr=schedule.lr)

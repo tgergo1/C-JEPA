@@ -1,15 +1,28 @@
 import numpy as np
 
 class EnergyNetwork:
-    """Simple energy-based network with gradient descent training."""
+    """Simple energy-based network with gradient descent training.
 
-    def __init__(self, sizes, reg=1e-4, energy_fn=None):
+    Parameters
+    ----------
+    sizes:
+        Sequence of layer sizes including input and output.
+    reg:
+        L2 regularization strength.
+    energy_fn:
+        Optional custom energy function ``f(out, target, weights, reg)``.
+    grad_fn:
+        Optional function returning ``dE/dout`` given ``out`` and ``target``.
+    """
+
+    def __init__(self, sizes, reg=1e-4, energy_fn=None, grad_fn=None):
         self.weights = [
             np.random.randn(n_out, n_in) * 0.1
             for n_in, n_out in zip(sizes[:-1], sizes[1:])
         ]
         self.reg = reg
         self.energy_fn = energy_fn
+        self.grad_fn = grad_fn
 
     def forward(self, x):
         """Forward pass with tanh activations."""
@@ -23,19 +36,26 @@ class EnergyNetwork:
         return mse + reg_term
 
     def energy(self, x, target):
-        """Compute global energy for input and target."""
+        """Compute global energy for ``x`` and ``target`` using ``energy_fn`` if provided."""
         out = self.forward(x)
         if self.energy_fn is not None:
             return self.energy_fn(out, target, self.weights, self.reg)
         return self._default_energy(out, target)
 
     def train_step(self, x, target, lr=0.01):
-        """Perform one gradient descent step to minimize energy."""
+        """Perform one gradient descent step to minimize energy.
+
+        Uses ``grad_fn`` if provided to compute ``dE/dout``; otherwise defaults
+        to mean squared error gradients.
+        """
         activations = [x]
         for w in self.weights[:-1]:
             activations.append(np.tanh(w @ activations[-1]))
         out = self.weights[-1] @ activations[-1]
-        error = out - target
+        if self.grad_fn is not None:
+            error = self.grad_fn(out, target)
+        else:
+            error = out - target
 
         # Backpropagate gradients
         grad_out = error
@@ -53,4 +73,5 @@ class EnergyNetwork:
             w -= lr * g
 
         return np.linalg.norm(error)
+
 
