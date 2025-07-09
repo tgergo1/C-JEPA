@@ -1,17 +1,18 @@
 import numpy as np
 
+from .core import BaseEnergyNetwork
+
 try:
     import torch
     TORCH_AVAILABLE = True
 except Exception:  # pragma: no cover - torch is optional
     TORCH_AVAILABLE = False
 
-class EnergyNetwork:
+class EnergyNetwork(BaseEnergyNetwork):
     """Energy-based network with optional accelerated backend."""
 
     def __init__(self, sizes, reg=1e-4, backend="numpy", device=None, multi_gpu=False):
         self.backend = backend
-        self.reg = reg
 
         if backend == "torch":
             if not TORCH_AVAILABLE:
@@ -27,10 +28,7 @@ class EnergyNetwork:
                 model = torch.nn.DataParallel(model)
             self.model = model
         else:
-            self.weights = [
-                np.random.randn(n_out, n_in) * 0.1
-                for n_in, n_out in zip(sizes[:-1], sizes[1:])
-            ]
+            super().__init__(sizes, reg=reg)
 
     def forward(self, x):
         """Forward pass with tanh activations."""
@@ -50,9 +48,7 @@ class EnergyNetwork:
                 x = x.squeeze(0)
             return x
         else:
-            for w in self.weights[:-1]:
-                x = np.tanh(w @ x)
-            return self.weights[-1] @ x
+            return super().forward(x)
 
     def energy(self, x, target):
         """Compute global energy for input and target."""
@@ -71,10 +67,7 @@ class EnergyNetwork:
             reg_term = 0.5 * self.reg * sum(torch.sum(layer.weight ** 2) for layer in modules)
             return (mse + reg_term).item()
         else:
-            out = self.forward(x)
-            mse = 0.5 * np.sum((out - target) ** 2)
-            reg_term = 0.5 * self.reg * sum(np.sum(w ** 2) for w in self.weights)
-            return mse + reg_term
+            return super().energy(x, target)
 
     def train_step(self, x, target, lr=0.01):
         """Perform one gradient descent step to minimize energy."""
@@ -109,28 +102,7 @@ class EnergyNetwork:
                     layer.weight -= lr * layer.weight.grad
             return torch.linalg.norm(error).item()
         else:
-            activations = [x]
-            for w in self.weights[:-1]:
-                activations.append(np.tanh(w @ activations[-1]))
-            out = self.weights[-1] @ activations[-1]
-            error = out - target
-
-            # Backpropagate gradients
-            grad_out = error
-            grads = []
-            for i in reversed(range(len(self.weights))):
-                a_prev = activations[i]
-                grad_w = np.outer(grad_out, a_prev) + self.reg * self.weights[i]
-                grads.insert(0, grad_w)
-                if i > 0:
-                    grad_a = self.weights[i].T @ grad_out
-                    grad_out = grad_a * (1 - activations[i] ** 2)
-
-            # Update weights
-            for w, g in zip(self.weights, grads):
-                w -= lr * g
-
-            return np.linalg.norm(error)
+            return super().train_step(x, target, lr=lr)
 
     # --- additional helpers for JEPA style training ---
     def forward_activations(self, x):
@@ -138,32 +110,18 @@ class EnergyNetwork:
         if self.backend == "torch":
             raise NotImplementedError("forward_activations not supported for torc"
                                     "h backend")
-        activations = [x]
-        for w in self.weights[:-1]:
-            activations.append(np.tanh(w @ activations[-1]))
-        out = self.weights[-1] @ activations[-1]
-        activations.append(out)
-        return out, activations
+        return super().forward_activations(x)
 
     def backprop(self, activations, grad_out):
         """Return gradients and gradient w.r.t. input for numpy backend."""
         if self.backend == "torch":
             raise NotImplementedError("backprop not supported for torch backend")
-        grads = []
-        for i in reversed(range(len(self.weights))):
-            a_prev = activations[i]
-            grad_w = np.outer(grad_out, a_prev) + self.reg * self.weights[i]
-            grads.insert(0, grad_w)
-            if i > 0:
-                grad_a = self.weights[i].T @ grad_out
-                grad_out = grad_a * (1 - activations[i] ** 2)
-        return grads, grad_out
+        return super().backprop(activations, grad_out)
 
     def apply_grads(self, grads, lr):
         """Update weights with provided gradients."""
         if self.backend == "torch":
             raise NotImplementedError("apply_grads not supported for torch backen"
                                     "d")
-        for w, g in zip(self.weights, grads):
-            w -= lr * g
+        super().apply_grads(grads, lr)
 
