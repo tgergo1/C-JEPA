@@ -5,7 +5,10 @@ from .network import Network
 from .predictive_coding import PredictiveCodingNetwork
 from .energy_based import EnergyNetwork
 from .core import BaseEnergyNetwork
-from .torch_energy import TorchEnergyNetwork
+try:
+    from .torch_energy import TorchEnergyNetwork
+except Exception:  # pragma: no cover - torch is optional
+    TorchEnergyNetwork = None
 from .api import SNNModel
 from .modular_network import ModularEnergyNetwork
 from .layers import DenseLayer, ConvLayer, FlattenLayer, RecurrentLayer
@@ -14,7 +17,6 @@ from .jepa import JointEmbeddingNetwork
 from .interface import run_simulation
 from .datasets import load_digits_dataset, gather_digits_dataset
 from .training import EnergyTrainer, TrainingConfig
-from .torch_energy import TorchEnergyNetwork
 
 __all__ = [
     "SpikingNeuron",

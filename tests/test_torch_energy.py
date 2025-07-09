@@ -1,5 +1,7 @@
 import numpy as np
-import torch
+import pytest
+
+torch = pytest.importorskip("torch")
 from bio_snn.torch_energy import TorchEnergyNetwork
 
 
