@@ -13,7 +13,8 @@ implements several biologically motivated mechanisms:
 The implementation is intentionally lightweight and serves as a starting point
 for experimenting with more elaborate models that incorporate dendritic
 computation, neuromodulation and hierarchical organization as described in the
-project proposal.
+project proposal. A new :class:`BaseEnergyNetwork` now provides a common
+numpy backend used by higher level modules.
 
 Recent refactoring introduced reproducible initialization and state reset
 functions making the code easier to use for controlled experiments.

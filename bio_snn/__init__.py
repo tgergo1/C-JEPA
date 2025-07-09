@@ -4,6 +4,7 @@ from .neuron import SpikingNeuron
 from .network import Network
 from .predictive_coding import PredictiveCodingNetwork
 from .energy_based import EnergyNetwork
+from .core import BaseEnergyNetwork
 from .torch_energy import TorchEnergyNetwork
 from .api import SNNModel
 from .modular_network import ModularEnergyNetwork
@@ -20,6 +21,7 @@ __all__ = [
     "Network",
     "PredictiveCodingNetwork",
     "EnergyNetwork",
+    "BaseEnergyNetwork",
     "TorchEnergyNetwork",
     "ModularEnergyNetwork",
     "SNNModel",
