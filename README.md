@@ -1,33 +1,35 @@
-# Biologically Inspired Spiking Neural Network
+# C-JEPA (Cognitive JEPA)
 
-This repository contains an initial prototype of a spiking neural network that
-implements several biologically motivated mechanisms:
+C-JEPA bundles a collection of biologically inspired spiking neural network
+modules together with a minimal Joint Embedding Predictive Architecture.  The
+code base was designed for experimentation and remains lightweight so it can be
+extended easily.
 
-- **Spiking neurons** with adaptive thresholds and simple dendritic
-  compartments.
+## Features
+
+- **Spiking neurons** with adaptive thresholds and simple dendritic compartments
+  implemented in pure NumPy.
 - **Spike-Timing-Dependent Plasticity (STDP)** learning rule.
-- A small **predictive coding** network that attempts to minimize local
-  prediction errors between layers.
-- A simple **energy-based** network for gradient descent experiments.
+- **Predictive coding** networks that minimise local prediction errors.
+- **Energy-based** networks that support gradient based optimisation.
+- **EnergyPredictiveNetwork** which combines predictive coding with a global
+  energy objective.
+- **JointEmbeddingNetwork** for JEPA-style training.
+- **TorchEnergyNetwork** optional PyTorch backend with multi-GPU support.
+- **Dataset utilities** for generating and loading digit data.
+- **CLI tools** and **training helpers** for running experiments.
+- **Tutorial notebooks** demonstrating reconstruction, sequence prediction and
+  generative modelling.
 
-The implementation is intentionally lightweight and serves as a starting point
-for experimenting with more elaborate models that incorporate dendritic
-computation, neuromodulation and hierarchical organization as described in the
-project proposal. A new :class:`BaseEnergyNetwork` now provides a common
-numpy backend used by higher level modules.
-
-Recent refactoring introduced reproducible initialization and state reset
-functions making the code easier to use for controlled experiments.
-
-## Basic Usage
-
-Install dependencies:
+## Installation
 
 ```bash
 pip install numpy torch matplotlib scikit-learn
 ```
 
-Run a short simulation with the predictive coding network:
+## Quick start
+
+The predictive coding network can be run with just a few lines of code:
 
 ```python
 from bio_snn.predictive_coding import PredictiveCodingNetwork
@@ -41,11 +43,7 @@ for _ in range(100):
 print("Output:", y)
 ```
 
-This will create a tiny network with one hidden layer and run it for a few
-steps.
-
-An additional ``EnergyNetwork`` class demonstrates energy-based training with
-backpropagation. Example:
+### Energy-based example
 
 ```python
 from bio_snn.energy_based import EnergyNetwork
@@ -59,15 +57,10 @@ for _ in range(50):
 print("Energy:", net.energy(x, target))
 ```
 
-To enable GPU acceleration, instantiate the network with ``backend="torch"``. If a
-CUDA-capable device is available, computations will run on the GPU and can be
-parallelized across multiple GPUs using ``multi_gpu=True``:
+GPU acceleration is enabled by instantiating the network with
+`backend="torch"`. Multiple GPUs can be used with `multi_gpu=True`.
 
-```python
-net = EnergyNetwork([2, 4, 1], backend="torch", multi_gpu=True)
-
-For larger scale experiments you can train the network on the
-``sklearn`` digits dataset using the provided ``EnergyTrainer`` utility:
+### Training on digits
 
 ```python
 from bio_snn.training import EnergyTrainer, TrainingConfig
@@ -77,27 +70,13 @@ trainer = EnergyTrainer(cfg)
 trainer.train()
 ```
 
-This will load the dataset, run several training epochs while logging loss
-values, save checkpoints in ``./checkpoints`` and produce a ``training_loss.png``
-plot for quick visualization.
-
-### Preparing the dataset
-
-For quick experiments you can pre-generate the digits dataset splits using the
-``scripts/gather_digits_dataset.py`` helper:
+Prepare the dataset beforehand using the helper script:
 
 ```bash
 python scripts/gather_digits_dataset.py --out-dir data --test-size 0.2 --random-state 0
 ```
 
-This will create ``data/train.npz`` and ``data/test.npz`` files which can be
-loaded later with ``numpy.load`` for rapid prototyping.
-
-### PyTorch implementation
-
-For experiments requiring automatic differentiation or more advanced optimizers,
-the repository also provides ``TorchEnergyNetwork`` which mirrors the numpy
-version but is implemented with PyTorch. Using it is nearly identical:
+### Torch implementation
 
 ```python
 from bio_snn.torch_energy import TorchEnergyNetwork
@@ -111,35 +90,21 @@ for _ in range(50):
 print("Energy:", net.energy(x, target).item())
 ```
 
-## Command Line Interface
+### Command line interface
 
-A simple CLI is provided to quickly run a simulation without writing any code.
-Example usage:
+A simple CLI is available to run simulations without writing any code:
 
 ```bash
 python -m bio_snn.interface --sizes 2,3,1 --input 1,0 --steps 100 --seed 0
 ```
 
-This will construct a small network with the given layer sizes, feed the input
-vector for 100 steps and print the final output.  Providing a ``--seed`` ensures
-reproducible results, while ``--modulation`` can be used to adjust the strength
-of plasticity online.
+### Tutorial notebooks
 
-## Tutorial Notebooks
+- `energy_image_reconstruction.ipynb` – tiny autoencoder example.
+- `energy_sequence_prediction.ipynb` – sequence prediction demo.
+- `energy_generative_modeling.ipynb` – simple generative model.
 
-Several Jupyter notebooks in the ``notebooks`` directory demonstrate how to
-train the ``EnergyNetwork`` on common tasks:
-
-- ``energy_image_reconstruction.ipynb`` shows a tiny autoencoder that
-  reconstructs 8x8 images.
-- ``energy_sequence_prediction.ipynb`` trains the network to predict the next
-  value in a numerical sequence.
-- ``energy_generative_modeling.ipynb`` illustrates how the network can learn a
-  simple one-dimensional distribution for generative modeling experiments.
-
-## JEPA-style Training
-
-The package includes a lightweight `JointEmbeddingNetwork` for simple joint embedding predictive experiments. It shares an encoder for context and target inputs and learns to predict the target embedding from the context.
+### JEPA-style training
 
 ```python
 from bio_snn.jepa import JointEmbeddingNetwork
@@ -154,4 +119,5 @@ loss = net.loss(ctx, tgt)
 print("Loss:", loss)
 ```
 
-This trains the network so that the predicted embedding matches the target embedding.
+This trains the network so that the predicted embedding matches the target
+embedding.
