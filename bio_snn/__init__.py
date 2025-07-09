@@ -9,6 +9,7 @@ from .api import SNNModel
 from .modular_network import ModularEnergyNetwork
 from .layers import DenseLayer, ConvLayer, FlattenLayer, RecurrentLayer
 from .energy_predictive import EnergyPredictiveNetwork
+from .jepa import JointEmbeddingNetwork
 from .interface import run_simulation
 from .datasets import load_digits_dataset, gather_digits_dataset
 from .training import EnergyTrainer, TrainingConfig
@@ -32,4 +33,5 @@ __all__ = [
     "gather_digits_dataset",
     "EnergyTrainer",
     "TrainingConfig",
+    "JointEmbeddingNetwork",
 ]

@@ -132,3 +132,38 @@ class EnergyNetwork:
 
             return np.linalg.norm(error)
 
+    # --- additional helpers for JEPA style training ---
+    def forward_activations(self, x):
+        """Return output and layer activations for numpy backend."""
+        if self.backend == "torch":
+            raise NotImplementedError("forward_activations not supported for torc"
+                                    "h backend")
+        activations = [x]
+        for w in self.weights[:-1]:
+            activations.append(np.tanh(w @ activations[-1]))
+        out = self.weights[-1] @ activations[-1]
+        activations.append(out)
+        return out, activations
+
+    def backprop(self, activations, grad_out):
+        """Return gradients and gradient w.r.t. input for numpy backend."""
+        if self.backend == "torch":
+            raise NotImplementedError("backprop not supported for torch backend")
+        grads = []
+        for i in reversed(range(len(self.weights))):
+            a_prev = activations[i]
+            grad_w = np.outer(grad_out, a_prev) + self.reg * self.weights[i]
+            grads.insert(0, grad_w)
+            if i > 0:
+                grad_a = self.weights[i].T @ grad_out
+                grad_out = grad_a * (1 - activations[i] ** 2)
+        return grads, grad_out
+
+    def apply_grads(self, grads, lr):
+        """Update weights with provided gradients."""
+        if self.backend == "torch":
+            raise NotImplementedError("apply_grads not supported for torch backen"
+                                    "d")
+        for w, g in zip(self.weights, grads):
+            w -= lr * g
+

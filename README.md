@@ -135,3 +135,22 @@ train the ``EnergyNetwork`` on common tasks:
   value in a numerical sequence.
 - ``energy_generative_modeling.ipynb`` illustrates how the network can learn a
   simple one-dimensional distribution for generative modeling experiments.
+
+## JEPA-style Training
+
+The package includes a lightweight `JointEmbeddingNetwork` for simple joint embedding predictive experiments. It shares an encoder for context and target inputs and learns to predict the target embedding from the context.
+
+```python
+from bio_snn.jepa import JointEmbeddingNetwork
+import numpy as np
+
+net = JointEmbeddingNetwork([2, 4, 2])
+ctx = np.array([1.0, 0.0])
+tgt = np.array([0.5, -0.5])
+for _ in range(50):
+    net.train_step(ctx, tgt, lr=0.05)
+loss = net.loss(ctx, tgt)
+print("Loss:", loss)
+```
+
+This trains the network so that the predicted embedding matches the target embedding.
