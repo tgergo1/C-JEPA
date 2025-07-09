@@ -80,6 +80,18 @@ This will load the dataset, run several training epochs while logging loss
 values, save checkpoints in ``./checkpoints`` and produce a ``training_loss.png``
 plot for quick visualization.
 
+### Preparing the dataset
+
+For quick experiments you can pre-generate the digits dataset splits using the
+``scripts/gather_digits_dataset.py`` helper:
+
+```bash
+python scripts/gather_digits_dataset.py --out-dir data --test-size 0.2 --random-state 0
+```
+
+This will create ``data/train.npz`` and ``data/test.npz`` files which can be
+loaded later with ``numpy.load`` for rapid prototyping.
+
 ### PyTorch implementation
 
 For experiments requiring automatic differentiation or more advanced optimizers,
