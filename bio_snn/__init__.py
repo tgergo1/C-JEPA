@@ -7,7 +7,7 @@ from .energy_based import EnergyNetwork
 from .core import BaseEnergyNetwork
 try:
     from .torch_energy import TorchEnergyNetwork
-except Exception:  # pragma: no cover - torch is optional
+except ImportError:  # pragma: no cover - torch is optional
     TorchEnergyNetwork = None
 from .api import SNNModel
 from .modular_network import ModularEnergyNetwork
